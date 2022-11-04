@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\User;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -17,7 +17,12 @@ class UserController extends Controller
 
     }
 
-    public function updateCar(Request $request, $id): JsonResponse
+    public function forgotPassword(Request $request, $email)
+    {
+
+    }
+
+    public function updateUser(Request $request, $id): JsonResponse
     {
         $car = User::find($id);
         $car->make = $request->input('make');
@@ -39,9 +44,9 @@ class UserController extends Controller
     public static function index(): JsonResponse
     {
 
-        $cars = User::all();
+        $users = User::all();
 
-        return response()->json($cars);
+        return response()->json($users);
 
     }
 }
