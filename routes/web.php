@@ -18,9 +18,13 @@ $router->get('/', function () use ($router) {
 });
 
 $router->group(['prefix' => 'api/v1'], function ($app) {
-    $app->post('user', 'UserController@createCar');
-    $app->put('user/{id}', 'UserController@updateCar');
+    $app->post('user/register', 'UserController@registerUser');
 
-    $app->delete('user/{id}', 'UserController@deleteCar');
+    $app->put('user/update', 'UserController@updateUser');
+
+    $app->delete('user/{identifier}', 'UserController@deleteUser');
+
     $app->get('user', 'UserController@index');
+    $app->get('user/{identifier}', 'UserController@getUser');
+    $app->get('user/login/{identifier}', 'UserController@login');
 });
