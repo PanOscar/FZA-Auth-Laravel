@@ -27,4 +27,5 @@ $router->group(['prefix' => 'api/v1'], function ($app) {
     $app->get('user', 'UserController@index');
     $app->get('user/{identifier}', 'UserController@getUser');
     $app->get('user/login/{identifier}', 'UserController@login');
+    $app->get('user/forgot/{email}', 'PasswordResetController@forgot');
 });

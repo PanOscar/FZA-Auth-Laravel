@@ -10,6 +10,9 @@ use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
+    public const WRONG_PASS = 'Wrong password or username';
+    public const USER_DONT_EXIST = 'User don\'t exist';
+
     /**
      * @throws Exception
      */
@@ -19,11 +22,11 @@ class UserController extends Controller
             'password' => 'required'
         ]);
         if (!$this->checkUsernameOrEmailExists($identifier)) {
-            return response()->json('Wrong password or username', 401);
+            return response()->json(self::WRONG_PASS, 401);
         }
-        $user = User::select('password')->where('username', '=', $identifier)->get();
-        if (!password_verify($request->input('password'), $user->jsonSerialize()[0]['password'])) {
-            return response()->json('Wrong password or username', 401);
+        $userPassword = User::select('password')->where('username', '=', $identifier)->get();
+        if (!password_verify($request->input('password'), $userPassword->jsonSerialize()[0]['password'])) {
+            return response()->json(self::WRONG_PASS, 401);
         }
         $apiKey = base64_encode(Str::random(40));
         User::where('email', $request->input('email'))->update(['api_key' => $apiKey]);
@@ -58,19 +61,32 @@ class UserController extends Controller
         return response()->json($user);
     }
 
-
-    public function updateUser(Request $request): JsonResponse
+    public function updateUser(Request $request, $identifier): JsonResponse
     {
-        $user = User::where('username', '=', $request->input('username'))
-            ->orWhere('email', "=", $request->input('email'));
+        $this->validate($request, [
+            'username' => 'unique:users',
+            'email' => 'email|unique:users',
+            'oldPassword' => 'required',
+            'newPassword' => 'regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/'
+        ]);
+        if ($this->checkUsernameOrEmailExists($identifier)) {
+            return response()->json(self::USER_DONT_EXIST, 401);
+        }
+        $oldPassword = User::select('password')->where('username', '=', $identifier)->get();
+        if (!password_verify($request->input('oldPassword'), $oldPassword->jsonSerialize()[0]['password'])) {
+            return response()->json('Wrong password or username', 401);
+        }
+
+        $user = User::where('username', '=', $identifier)
+            ->orWhere('email', "=", $identifier);
         if ($request->has('username')) {
             $user->username = $request->input('username');
         }
         if ($request->has('email')) {
             $user->email = $request->input('email');
         }
-        if ($request->has('password')) {
-            $user->password = $request->input('password');
+        if ($request->has('newPassword')) {
+            $user->password = $request->input('newPassword');
         }
         $user->save();
 
@@ -80,7 +96,7 @@ class UserController extends Controller
     public function deleteUser($identifier): JsonResponse
     {
         if (!$this->checkUsernameOrEmailExists($identifier)) {
-            return response()->json('User don\'t exist', 404);
+            return response()->json(self::USER_DONT_EXIST, 404);
         }
         $user = User::where('username', '=', $identifier)
             ->orWhere('email', "=", $identifier);
@@ -99,8 +115,8 @@ class UserController extends Controller
 
     public function getUser(string $identifier): JsonResponse
     {
-        if (!$this->checkUsernameOrEmailExists($identifier)) {
-            return response()->json('User don\'t exist', 404);
+        if (!self::checkUsernameOrEmailExists($identifier)) {
+            return response()->json(self::USER_DONT_EXIST, 404);
         }
         $user = User::select(['id', 'username', 'email'])->where('username', '=', $identifier)
             ->orWhere('email', "=", $identifier)->get();
@@ -108,7 +124,7 @@ class UserController extends Controller
         return response()->json($user);
     }
 
-    private function checkUsernameOrEmailExists(string $identifier): bool
+    public static function checkUsernameOrEmailExists(string $identifier): bool
     {
         $userExist = User::where('username', '=', $identifier)
             ->orWhere('email', "=", $identifier)->exists();
