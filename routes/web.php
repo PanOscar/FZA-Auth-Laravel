@@ -17,15 +17,14 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->group(['prefix' => 'api/v1'], function ($app) {
-    $app->post('user/register', 'UserController@registerUser');
+$router->post('user/register', 'UserController@registerUser');
 
-    $app->put('user/update', 'UserController@updateUser');
+$router->put('user/update', 'UserController@updateUser');
 
-    $app->delete('user/{identifier}', 'UserController@deleteUser');
+$router->delete('user/{identifier}', 'UserController@deleteUser');
 
-    $app->get('user', 'UserController@index');
-    $app->get('user/{identifier}', 'UserController@getUser');
-    $app->get('user/login/{identifier}', 'UserController@login');
-    $app->get('user/forgot/{email}', 'PasswordResetController@forgot');
-});
+$router->get('user', 'UserController@index');
+$router->get('user/{identifier}', 'UserController@getUser');
+$router->get('user/login/{identifier}', 'UserController@login');
+$router->get('user/forgot/{email}', 'PasswordResetController@forgot');
+
