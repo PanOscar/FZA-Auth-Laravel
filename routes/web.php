@@ -19,12 +19,12 @@ $router->get('/', function () use ($router) {
 
 $router->post('user/register', 'UserController@registerUser');
 
-$router->put('user/update', 'UserController@updateUser');
+$router->put('user/update/{identifier}', 'UserController@updateUser');
+$router->put('user/login/{identifier}', 'UserController@login');
 
 $router->delete('user/{identifier}', 'UserController@deleteUser');
 
 $router->get('user', 'UserController@index');
 $router->get('user/{identifier}', 'UserController@getUser');
-$router->get('user/login/{identifier}', 'UserController@login');
 $router->get('user/forgot/{email}', 'PasswordResetController@forgot');
 
