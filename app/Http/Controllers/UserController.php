@@ -93,7 +93,7 @@ class UserController extends Controller
         }
         $user->save();
 
-        return response()->json($user->username . '\\nUser successfully updated');
+        return response()->json($user->username . ' - user data successfully updated');
     }
 
     public function deleteUser($identifier): JsonResponse
