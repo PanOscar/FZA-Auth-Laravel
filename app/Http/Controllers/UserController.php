@@ -34,7 +34,14 @@ class UserController extends Controller
             ->orWhere('email', "=", $identifier)->first();
         $user->api_key = $apiKey;
         $user->save();
-        return response()->json(['status' => 'success', 'api_key' => $apiKey], 201);
+
+        $username = User::where('username', '=', $identifier)
+            ->orWhere('email', "=", $identifier)->get()->jsonSerialize()[0]['username'];
+        return response()->json([
+            'status' => 'success',
+            'api_key' => $apiKey,
+            'username' => $username
+        ], 201);
     }
 
     public function registerUser(Request $request): JsonResponse
