@@ -26,6 +26,6 @@ $router->put("user/reset", 'PasswordResetController@reset');
 $router->delete('user/{identifier}', 'UserController@deleteUser');
 
 $router->get('user', 'UserController@index');
-$router->get('user/{identifier}', 'UserController@getUser');
+$router->get('user/get/{identifier}', 'UserController@getUser');
 $router->get('user/forgot/{email}', 'PasswordResetController@forgot');
-
+$router->get('user/gender_group', 'UserController@genderInterest');

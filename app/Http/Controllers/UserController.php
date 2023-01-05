@@ -175,6 +175,17 @@ class UserController extends Controller
         return response()->json($user);
     }
 
+    public function genderInterest(Request $request): JsonResponse
+    {
+        $this->validate($request, [
+            'gender' => 'required'
+        ]);
+        $genderedUsers = User::select(['id', 'username'])
+            ->where('gender', '=', $request->input('gender'))->get();
+
+        return response()->json($genderedUsers, 201);
+    }
+
     public static function checkUsernameOrEmailExists(string $identifier): bool
     {
         $userExist = User::where('username', '=', $identifier)
