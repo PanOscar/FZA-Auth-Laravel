@@ -150,7 +150,18 @@ class UserController extends Controller
             ->orWhere('email', "=", $identifier)->first();
         $user->delete();
 
-        return response()->json('Removed successfully.');
+        return response()->json('Removed successfully.', 201);
+    }
+
+    public function showUsersByUsername(Request $request)
+    {
+        $usernames = $request->input('usernames');
+
+        $users = User::select(['id', 'username', 'email', 'first_name', 'last_name', 'birthday', 'gender'
+            , 'gender_reveal', 'gender_interest', 'photo', 'about', 'users_id_match'])
+            ->whereIn('username', $usernames)->get();
+
+        return response()->json($users, 201);
     }
 
     public function index(): JsonResponse
@@ -180,7 +191,8 @@ class UserController extends Controller
         $this->validate($request, [
             'gender' => 'required'
         ]);
-        $genderedUsers = User::select(['id', 'username'])
+        $genderedUsers = User::select(['id', 'username', 'email', 'first_name', 'last_name', 'birthday', 'gender'
+            , 'gender_reveal', 'gender_interest', 'photo', 'about', 'users_id_match'])
             ->where('gender', '=', $request->input('gender'))->get();
 
         return response()->json($genderedUsers, 201);

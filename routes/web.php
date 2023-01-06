@@ -29,3 +29,4 @@ $router->get('user', 'UserController@index');
 $router->get('user/get/{identifier}', 'UserController@getUser');
 $router->get('user/forgot/{email}', 'PasswordResetController@forgot');
 $router->get('user/gender_group', 'UserController@genderInterest');
+$router->get('user/usernames', 'UserController@showUsersByUsername');
