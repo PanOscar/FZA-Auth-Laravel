@@ -198,6 +198,33 @@ class UserController extends Controller
         return response()->json($genderedUsers, 201);
     }
 
+    public function addMatch(Request $request): JsonResponse
+    {
+        $this->validate($request, [
+            'username' => 'required',
+            'match_id' => 'required'
+        ]);
+        $userMatch = User::select(['username', 'users_id_match'])
+            ->where('username', '=', $request->input('username'))->get();
+
+        $matchArray = $userMatch->jsonSerialize()[0]['users_id_match'];
+
+
+        $matchArray = str_replace(array("[", "]", "\""), "", $matchArray);
+
+        $list = explode(",", $matchArray);
+        $list[] = $request->input('match_id');
+
+        $list = json_encode($list);
+
+        $user = User::select(['username', 'users_id_match'])
+            ->where('username', '=', $request->input('username'))
+            ->update(['users_id_match' => $list]);
+
+
+        return response()->json(['status' => 'success'], 201);
+    }
+
     public static function checkUsernameOrEmailExists(string $identifier): bool
     {
         $userExist = User::where('username', '=', $identifier)

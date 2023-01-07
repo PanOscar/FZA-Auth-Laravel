@@ -22,6 +22,7 @@ $router->post('user/login/{identifier}', 'UserController@login');
 
 $router->put('user/update/{identifier}', 'UserController@updateUser');
 $router->put("user/reset", 'PasswordResetController@reset');
+$router->put('user/add_match', 'UserController@addMatch');
 
 $router->delete('user/{identifier}', 'UserController@deleteUser');
 
