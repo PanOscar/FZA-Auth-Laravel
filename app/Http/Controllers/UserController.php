@@ -67,15 +67,6 @@ class UserController extends Controller
         $user->username = $request->input('username');
         $user->email = $request->input('email');
         $user->password = $passwordEncrypted;
-        $user->first_name = $request->input('first_name');
-        $user->last_name = $request->input('last_name');
-        $user->birthday = $request->input('birthday');
-        $user->gender_reveal = $request->input('gender_reveal');
-        $user->gender = $request->input('gender');
-        $user->gender_interest = $request->input('gender_interest');
-        $user->photo = $request->input('photo');
-        $user->about = $request->input('about');
-
 
         $user->save();
 
@@ -85,7 +76,6 @@ class UserController extends Controller
     public function updateUser(Request $request, $identifier): JsonResponse
     {
         $this->validate($request, [
-            'username' => 'unique:users',
             'email' => 'email|unique:users',
             'first_name' => '',
             'last_name' => '',
@@ -102,9 +92,7 @@ class UserController extends Controller
 
         $user = User::where('username', '=', $identifier)
             ->orWhere('email', "=", $identifier)->first();
-        if ($request->has('username')) {
-            $user->username = $request->input('username');
-        }
+
         if ($request->has('email')) {
             $user->email = $request->input('email');
         }
@@ -138,7 +126,7 @@ class UserController extends Controller
 
         $user->save();
 
-        return response()->json($user->username . ' - user data successfully updated');
+        return response()->json($user->username . ' - user data successfully updated', 201);
     }
 
     public function deleteUser($identifier): JsonResponse
@@ -217,7 +205,7 @@ class UserController extends Controller
 
         $list = json_encode($list);
 
-        $user = User::select(['username', 'users_id_match'])
+        User::select(['username', 'users_id_match'])
             ->where('username', '=', $request->input('username'))
             ->update(['users_id_match' => $list]);
 

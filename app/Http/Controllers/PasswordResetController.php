@@ -18,7 +18,7 @@ class PasswordResetController extends Controller
     public function forgot($email): JsonResponse
     {
         if (!UserController::checkUsernameOrEmailExists($email)) {
-            return response()->json(UserController::USER_DONT_EXIST);
+            return response()->json(UserController::USER_DONT_EXIST, 401);
         }
 
         $options = array();
@@ -53,7 +53,7 @@ class PasswordResetController extends Controller
                 ->addTextHeader('Content-Type', 'text/html')
                 ->addTextHeader('charset', 'ISO-8859-1');
         });
-        return response()->json(['status' => 'success']);
+        return response()->json(['status' => 'success'], 201);
     }
 
     public function reset(Request $request): JsonResponse
