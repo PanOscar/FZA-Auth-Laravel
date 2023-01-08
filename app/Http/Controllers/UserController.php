@@ -62,33 +62,37 @@ class UserController extends Controller
         ];
 
         $passwordEncrypted = password_hash($request->input('password'), PASSWORD_BCRYPT, $options);
+        $apiKey = base64_encode(Str::random(40));
 
         $user = new User;
         $user->username = $request->input('username');
         $user->email = $request->input('email');
         $user->password = $passwordEncrypted;
+        $user->api_key = $apiKey;
 
         $user->save();
 
-        return response()->json($user);
+        return response()->json([
+            'status' => 'success',
+            'api_key' => $apiKey,
+            'username' => $user->username
+        ], 201);
     }
 
     public function updateUser(Request $request, $identifier): JsonResponse
     {
         $this->validate($request, [
             'email' => 'email|unique:users',
-            'first_name' => '',
-            'last_name' => '',
-            'oldPassword' => 'required',
             'newPassword' => 'regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/'
         ]);
         if (!self::checkUsernameOrEmailExists($identifier)) {
             return response()->json(self::USER_DONT_EXIST, 401);
         }
-        $oldPassword = User::select('password')->where('username', '=', $identifier)->get();
-        if (!password_verify($request->input('oldPassword'), $oldPassword->jsonSerialize()[0]['password'])) {
-            return response()->json('Wrong password or username', 401);
-        }
+        /*        $oldPassword = User::select('password')->where('username', '=', $identifier)->get();
+                if (!password_verify($request->input('oldPassword'), $oldPassword->jsonSerialize()[0]['password'])) {
+                    return response()->json('Wrong password or username', 401);
+                }*/
+
 
         $user = User::where('username', '=', $identifier)
             ->orWhere('email', "=", $identifier)->first();
@@ -97,7 +101,12 @@ class UserController extends Controller
             $user->email = $request->input('email');
         }
         if ($request->has('newPassword')) {
-            $user->password = $request->input('newPassword');
+            $options = [
+                'cost' => 11
+            ];
+
+            $passwordEncrypted = password_hash($request->input('newPassword'), PASSWORD_BCRYPT, $options);
+            $user->password = $passwordEncrypted;
         }
         if ($request->has('first_name')) {
             $user->first_name = $request->input('first_name');
@@ -132,7 +141,7 @@ class UserController extends Controller
     public function deleteUser($identifier): JsonResponse
     {
         if (!self::checkUsernameOrEmailExists($identifier)) {
-            return response()->json(self::USER_DONT_EXIST, 404);
+            return response()->json(self::USER_DONT_EXIST, 401);
         }
         $user = User::where('username', '=', $identifier)
             ->orWhere('email', "=", $identifier)->first();
@@ -157,7 +166,7 @@ class UserController extends Controller
         $users = User::select(['id', 'username', 'email', 'first_name', 'last_name', 'birthday', 'gender'
             , 'gender_reveal', 'gender_interest', 'photo', 'about', 'users_id_match'])->get();
 
-        return response()->json($users);
+        return response()->json($users, 201);
 
     }
 
