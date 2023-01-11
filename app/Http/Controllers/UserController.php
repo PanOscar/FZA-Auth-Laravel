@@ -206,10 +206,14 @@ class UserController extends Controller
 
         $matchArray = $userMatch->jsonSerialize()[0]['users_id_match'];
 
-
         $matchArray = str_replace(array("[", "]", "\""), "", $matchArray);
 
+
         $list = explode(",", $matchArray);
+        if (empty($request->input('match_id')) || in_array($request->input('match_id'), $list, true)) {
+            return response()->json(['status' => 'failure'], 401);
+
+        }
         $list[] = $request->input('match_id');
 
         $list = json_encode($list);
